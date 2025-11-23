@@ -1,0 +1,6 @@
+@InnovaTube.Api_HostAddress = http://localhost:5064
+
+GET {{InnovaTube.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

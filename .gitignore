@@ -1,0 +1,31 @@
+# Build
+bin/
+obj/
+out/
+publish/
+
+# User-specific
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.idea/
+
+# Logs
+*.log
+
+# Sistema
+Thumbs.db
+*.DS_Store
+
+# Docker
+*.tar
+
+# Archivos de config locales
+appsettings.Development.json
+
+# Git
+.git/
