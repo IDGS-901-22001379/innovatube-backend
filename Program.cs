@@ -20,7 +20,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: corsPolicyName, policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173") // URL del frontend (Vite)
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://innovatubey.netlify.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
         // Si después usas cookies o credenciales:
@@ -124,19 +127,19 @@ var app = builder.Build();
 // Middleware / pipeline
 // ==========================
 
-if (app.Environment.IsDevelopment())
+// Dejamos Swagger siempre activo para poder usar /swagger como health check
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "InnovaTube API v1");
-        // c.RoutePrefix = string.Empty; // si quieres que Swagger salga en "/"
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "InnovaTube API v1");
+    // c.RoutePrefix = string.Empty; // si quieres que Swagger salga en "/"
+});
 
-app.UseHttpsRedirection();
+// NO usar UseHttpsRedirection en App Runner:
+// el TLS lo maneja AWS antes de llegar al contenedor.
+// app.UseHttpsRedirection();
 
-// CORS debe ir antes de Auth y MapControllers
+// CORS antes de Auth y MapControllers
 app.UseCors(corsPolicyName);
 
 app.UseAuthentication();
