@@ -10,6 +10,25 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================
+// Configuración CORS
+// ==========================
+
+var corsPolicyName = "AllowInnovaTubeFrontend";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicyName, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") // URL del frontend (Vite)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        // Si después usas cookies o credenciales:
+        // .AllowCredentials();
+    });
+});
+
+// ==========================
 // Servicios
 // ==========================
 
@@ -27,7 +46,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API de autenticación y favoritos de InnovaTube"
     });
 
-    // ======== Seguridad para JWT en Swagger (Authorize) =========
+    // Seguridad para JWT en Swagger (Authorize)
     var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -57,6 +76,10 @@ builder.Services.AddSingleton<MySqlConnectionFactory>();
 // Opciones JWT desde appsettings.json
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection("Jwt"));
+
+// Opciones de Email desde appsettings.json
+builder.Services.Configure<EmailOptions>(
+    builder.Configuration.GetSection("Email"));
 
 // ==========================
 // Autenticación JWT
@@ -92,6 +115,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 // builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 
 var app = builder.Build();
@@ -111,6 +135,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// CORS debe ir antes de Auth y MapControllers
+app.UseCors(corsPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();
